@@ -1,1 +1,11 @@
-This project is based off of phenny/phenny_osu. It's only purpose to play uno.
+Installation.
+
+1) Run ./jenny - this creates a default config file
+2) Edit ~/.jenny/default.py
+3) Run ./jenny - this now runs jenny with your settings
+
+Enjoy!
+
+-- 
+Sean B. Palmer, http://inamidst.com/sbp/
+forked by Michael S. Yanovich

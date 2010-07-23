@@ -2,9 +2,10 @@
 """
 irc.py - A Utility IRC Bot
 Copyright 2008, Sean B. Palmer, inamidst.com
+Modified by: Michael Yanovich, 
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import sys, re, time, traceback
@@ -141,12 +142,14 @@ class Bot(asynchat.async_chat):
 					time.sleep(wait - elapsed)
 
 		# Loop detection
+		'''
 		messages = [m[1] for m in self.stack[-8:]]
 		if messages.count(text) >= 5: 
 			text = '...'
 			if messages.count('...') >= 3: 
 				self.sending.release()
 				return
+		'''
 
 		self.__write(('PRIVMSG', recipient), text)
 		self.stack.append((time.time(), text))

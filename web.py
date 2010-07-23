@@ -2,7 +2,9 @@
 """
 web.py - Web Facilities
 Author: Sean B. Palmer, inamidst.com
-About: http://inamidst.com/phenny/
+About: http://inamidst.com/jenny/
+
+Forked by: Michael S. Yanovich, http://opensource.cse.ohio-state.edu/git/yanovich/jenny.git/
 """
 
 import urllib

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-__init__.py - Jenny Init Module
+__init__.py - jenny Init Module
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import sys, os, time, threading, signal

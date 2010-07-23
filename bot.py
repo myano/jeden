@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-bot.py - Jenny IRC Bot
+bot.py - jenny IRC Bot
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 import sys, os, re, threading, imp
 import irc
@@ -176,12 +176,6 @@ class jenny(irc.Bot):
 				s.args = args
 				s.admin = origin.nick in self.config.admins
 				s.owner = origin.nick == self.config.owner
-				s.logchans = self.config.logged_channels
-				s.twitter_username = self.config.twitter_username
-				s.twitter_password = self.config.twitter_password
-				s.bitly_api = self.config.bitly_api
-				s.bitly_user = self.config.bitly_user
-				s.github_api_key = self.config.github_api_key
 				return s
 
 		return CommandInput(text, origin, bytes, match, event, args)

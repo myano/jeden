@@ -15,11 +15,11 @@ class Uno_Game:
 uno = Uno_Game()
 
 def game_start(jenny, input):
-    if input.nick == 'phenny_uno' and uno.game_on == False and uno.allowed_to_play == False:
+    if input.nick == '' and uno.game_on == False and uno.allowed_to_play == False:
         uno.game_on = True
 game_start.rule = r'IRC-UNO started by.*'
 
-def permission_to_play(jenny, input):
+def permission_to_play (jenny, input):
     uno.allowed_to_play = True
 permission_to_play.rule = r'(?ims)^(jenny|$nickname)\:\splay'
 

@@ -31,16 +31,10 @@ def create_default_config(fn):
    owner = 'yournickname'
    # password = 'yourserverpassword'
 
-   twitter_username = ""
-   twitter_password = ""
-   bitly_api = ""
-   bitly_user = ""
-   github_api_key = ""
-
    # These are people who will be able to use admin.py's functions...
-   admins = [owner, 'someoneyoutrust']
-   # But admin.py is disabled by default, as follows:
-   exclude = ['admin', 'ai', 'github', 'resp', 'school', 'twit']
+   admins = [owner]
+   
+   exclude = [ ]
 
    # If you want to enumerate a list of modules rather than disabling
    # some, use "enable = ['example']", which takes precedent over exclude

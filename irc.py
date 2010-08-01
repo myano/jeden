@@ -142,21 +142,19 @@ class Bot(asynchat.async_chat):
 					time.sleep(wait - elapsed)
 
 		# Loop detection
-		'''
 		messages = [m[1] for m in self.stack[-8:]]
 		if messages.count(text) >= 5: 
 			text = '...'
 			if messages.count('...') >= 3: 
 				self.sending.release()
 				return
-		'''
+		
 
 		self.__write(('PRIVMSG', recipient), text)
 		self.stack.append((time.time(), text))
 		self.stack = self.stack[-10:]
 
 		self.sending.release()
-
 	def notice(self, dest, text): 
 		self.write(('NOTICE', dest), text)
 

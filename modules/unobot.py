@@ -72,7 +72,7 @@ STRINGS = {
     'GAINS' : '\x0300,01%s gains %s points!',
 }
 
-class UnoBot:
+class unobot:
     def __init__ (self):
         self.colored_card_nums = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'R', 'S', 'D2' ]
         self.special_scores = { 'R' : 20, 'S' : 20, 'D2' : 20, 'W' : 50, 'WD4' : 50}
@@ -148,7 +148,7 @@ class UnoBot:
         self.cardPlayed (jenny, self.topCard)
         self.showOnTurn (jenny)
     
-    def play (self, jenny, input):
+    def play_part1 (self, jenny, input):
         if not self.game_on or not self.deck:
             return
         if input.nick != self.playerOrder[self.currentPlayer]:
@@ -169,7 +169,10 @@ class UnoBot:
         if not self.cardPlayable (playcard):
             jenny.msg (CHANNEL, STRINGS['DOESNT_PLAY'] % self.playerOrder[self.currentPlayer])
             return
-        
+
+        self.play_part2 (jenny, input, searchcard, playcard)
+
+    def play_part2 (self, jenny, input, searchcard, playcard):
         self.drawn = False
         self.players[self.playerOrder[self.currentPlayer]].remove (searchcard)
         
@@ -393,78 +396,6 @@ class UnoBot:
             f.close ()
         except Exception, e:
             print 'Failed to write score file %s' % e
-
-
-unobot = UnoBot ()
-
-def uno(jenny, input):
-    unobot.start (jenny, input.nick)
-uno.commands = ['uno']
-uno.priority = 'low'
-
-def unostop(jenny, input):
-    unobot.stop (jenny, input)
-unostop.commands = ['unostop']
-unostop.priority = 'low'
-
-def join(jenny, input):
-    unobot.join (jenny, input)
-join.rule = '^join$'
-join.priority = 'low'
-
-def deal(jenny, input):
-    unobot.deal (jenny, input)
-deal.commands = ['deal']
-deal.priority = 'low'
-
-def play(jenny, input):
-    unobot.play (jenny, input)
-play.commands = ['play']
-play.priority = 'low'
-
-def draw(jenny, input):
-    unobot.draw (jenny, input)
-draw.commands = ['draw']
-draw.priority = 'low'
-
-def passs(jenny, input):
-    unobot.passs (jenny, input)
-passs.commands = ['pass']
-passs.priority = 'low'
-
-def unotop10 (jenny, input):
-    unobot.top10 (jenny)
-unotop10.commands = ['unotop10']
-unotop10.priority = 'low'
-
-def show_user_cards (jenny, input):
-    unobot.showCards (jenny, input.nick)
-show_user_cards.commands = ['cards']
-show_user_cards.priority = 'low'
-
-#===============================================================================
-
-class Uno_Game:
-    def __init__ (self):
-        self.allowed_to_play = False
-        self.game_on = False
-
-uno = Uno_Game()
-
-def game_start(jenny, input):
-    if input.nick == '$nickname' and uno.game_on == False and uno.allowed_to_play == False:
-        uno.game_on = True
-game_start.rule = r'IRC-UNO started by.*'
-
-def permission_to_play(jenny, input):
-    text = input.group().split(": ")
-    if text[1] == 'play':
-        uno.allowed_to_play = True
-        print uno.allowed_to_play
-    elif text[1] == 'stop':
-        uno.allowed_to_play = False
-permission_to_play.rule = r'(?ims)^(jenny|$nickname)\:\s.*'
-
 
 if __name__ == '__main__':
        print __doc__.strip()

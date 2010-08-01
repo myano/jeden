@@ -1,28 +1,66 @@
-"""
-uno.py - Computer Playing Bot
-"""
 
-import random
+from modules import unogame
+from modules import unobot
 
-class Uno_Game:
-    def __init__ (self):
-        self.allowed_to_play = False
-        self.game_on = False
-        self.current_cards = { }
-        self.player_list = [ ]
+bot = unobot.unobot ()
+uno_alg = unogame.unogame ()
 
+def uno(jenny, input):
+    bot.start (jenny, input.nick)
+uno.commands = ['uno']
+uno.priority = 'low'
 
-uno = Uno_Game()
+def unostop(jenny, input):
+    bot.stop (jenny, input)
+unostop.commands = ['unostop']
+unostop.priority = 'low'
 
-def game_start(jenny, input):
-    if input.nick == '' and uno.game_on == False and uno.allowed_to_play == False:
-        uno.game_on = True
-game_start.rule = r'IRC-UNO started by.*'
+def join(jenny, input):
+    bot.join (jenny, input)
+join.rule = '^join$'
+join.priority = 'low'
 
-def permission_to_play (jenny, input):
-    uno.allowed_to_play = True
-permission_to_play.rule = r'(?ims)^(jenny|$nickname)\:\splay'
+def deal(jenny, input):
+    bot.deal (jenny, input)
+deal.commands = ['deal']
+deal.priority = 'low'
 
-def get_cards(jenny,input):
-    jenny.say(str(input.group()))
-get_cards.rule = r'Cards\:'
+def play(jenny, input):
+    bot.play_part1 (jenny, input)
+play.commands = ['play']
+play.priority = 'low'
+
+def draw(jenny, input):
+    bot.draw (jenny, input)
+draw.commands = ['draw']
+draw.priority = 'low'
+
+def passs(jenny, input):
+    bot.passs (jenny, input)
+passs.commands = ['pass']
+passs.priority = 'low'
+
+def unotop10 (jenny, input):
+    bot.top10 (jenny)
+unotop10.commands = ['unotop10']
+unotop10.priority = 'low'
+
+def show_user_cards (jenny, input):
+    bot.showCards (jenny, input.nick)
+show_user_cards.commands = ['cards']
+show_user_cards.priority = 'low'
+
+def showme(jenny, input):
+    jenny.say("I'm also joining the game.")
+    bot.join(jenny, input)
+    uno_alg.make_a_move()
+    print str(uno_alg.make_a_move.my_cards)
+
+def permission_to_play(jenny, input):
+    text = input.group().split(": ")
+    if text[1] == 'play':
+        uno_alg.allowed_to_play = True
+    elif text[1] == 'stop':
+        uno_alg.allowed_to_play = False
+permission_to_play.rule = r'(?ims)^(jenny|$nickname)\:\s.*'
+

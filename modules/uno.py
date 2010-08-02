@@ -1,9 +1,8 @@
 
-from modules import unogame
 from modules import unobot
+import time
 
 bot = unobot.unobot ()
-uno_alg = unogame.unogame ()
 
 def uno(jenny, input):
     bot.start (jenny, input.nick)
@@ -50,17 +49,23 @@ def show_user_cards (jenny, input):
 show_user_cards.commands = ['cards']
 show_user_cards.priority = 'low'
 
-def showme(jenny, input):
-    jenny.say("I'm also joining the game.")
-    bot.join(jenny, input)
-    uno_alg.make_a_move()
-    print str(uno_alg.make_a_move.my_cards)
+def jenny_join(jenny, input):
+    if bot.allowed_to_play == True:
+        time.sleep(2)
+        jenny.say("I'm also joining the game.")
+        input.nick = jenny.config.nick
+        bot.join(jenny, input)
+jenny_join.rule = '^.uno$'
+
+#def take_turn(jenny, input):
+#    uno_alg.make_a_move()
+#    print str(uno_alg.make_a_move.my_cards)
+#take_turn.rule = r'$nickname\'s\sturn.\sTop\sCard\:'
 
 def permission_to_play(jenny, input):
     text = input.group().split(": ")
     if text[1] == 'play':
-        uno_alg.allowed_to_play = True
+        bot.allowed_to_play = True
     elif text[1] == 'stop':
-        uno_alg.allowed_to_play = False
+        bot.allowed_to_play = False
 permission_to_play.rule = r'(?ims)^(jenny|$nickname)\:\s.*'
-

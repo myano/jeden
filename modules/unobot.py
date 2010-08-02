@@ -87,6 +87,11 @@ class unobot:
         self.drawn = False
         self.scoreFile = SCOREFILE
         self.deck = [ ]
+
+        #========
+        self.allowed_to_play = False
+        self.my_cards = "" 
+        #========
     
     def start(self, jenny, owner):
         if self.game_on:
@@ -109,11 +114,15 @@ class unobot:
     def join (self, jenny, input):
         #print dir (jenny.bot)
         #print dir (input)
+        jenny.say("I'm joining a person to the game.")
         if self.game_on:
+            jenny.say("Game is on.")
             if input.nick not in self.players:
+                jenny.say("if input.nick not in self.players")
                 self.players[input.nick] = [ ]
                 self.playerOrder.append (input.nick)
                 if self.deck:
+                    jenny.say("if self.deck")
                     for i in xrange (0, 7):
                         self.players[input.nick].append (self.getCard ())
                     jenny.msg (CHANNEL, STRINGS['DEALING_IN'] % (input.nick, self.playerOrder.index (input.nick) + 1))
@@ -146,7 +155,7 @@ class unobot:
         while self.topCard in ['W', 'WD4']: self.topCard = self.getCard ()
         self.currentPlayer = 1
         self.cardPlayed (jenny, self.topCard)
-        self.showOnTurn (jenny)
+        self.showOnTurn (jenny, input)
     
     def play_part1 (self, jenny, input):
         if not self.game_on or not self.deck:
@@ -173,6 +182,8 @@ class unobot:
         self.play_part2 (jenny, input, searchcard, playcard)
 
     def play_part2 (self, jenny, input, searchcard, playcard):
+        print "searchcard: " + str(searchcard)
+        print "playcard: " + str(playcard)
         self.drawn = False
         self.players[self.playerOrder[self.currentPlayer]].remove (searchcard)
         
@@ -188,7 +199,7 @@ class unobot:
             self.gameEnded (jenny, self.playerOrder[pl])
             return
             
-        self.showOnTurn (jenny)
+        self.showOnTurn (jenny, input)
 
     def draw (self, jenny, input):
         if not self.game_on or not self.deck:
@@ -204,7 +215,8 @@ class unobot:
         c = self.getCard ()
         self.players[self.playerOrder[self.currentPlayer]].append (c)
         jenny.notice (input.nick, STRINGS['DRAWN_CARD'] % self.renderCards ([c]))
-
+        if input.nick == jenny.config.nick:
+            self.make_a_move(jenny, input) 
     # this is not a typo, avoiding collision with Python's pass keyword
     def passs (self, jenny, input):
         if not self.game_on or not self.deck:
@@ -218,7 +230,7 @@ class unobot:
         self.drawn = False
         jenny.msg (CHANNEL, STRINGS['PASSED'] % self.playerOrder[self.currentPlayer])
         self.incPlayer ()
-        self.showOnTurn (jenny)
+        self.showOnTurn (jenny, input)
     
     def top10 (self, jenny):
         from copy import copy
@@ -261,8 +273,10 @@ class unobot:
             self.deck = self.createnewdeck ()        
         return ret
     
-    def showOnTurn (self, jenny):
+    def showOnTurn (self, jenny, input):
         jenny.msg (CHANNEL, STRINGS['TOP_CARD'] % (self.playerOrder[self.currentPlayer], self.renderCards ([self.topCard])))
+        if self.playerOrder[self.currentPlayer] == jenny.config.nick:
+            self.make_a_move(jenny, input)
         jenny.notice (self.playerOrder[self.currentPlayer], STRINGS['YOUR_CARDS'] % self.renderCards (self.players[self.playerOrder[self.currentPlayer]]))
         msg = STRINGS['NEXT_START']
         tmp = self.currentPlayer + self.way
@@ -396,6 +410,88 @@ class unobot:
             f.close ()
         except Exception, e:
             print 'Failed to write score file %s' % e
+    
+    #=====
+    def make_a_move (self, jenny, input):
+        self.my_cards = self.players[jenny.config.nick]
+        print "My cards: " + str(self.my_cards)
 
+        top_card = self.renderCards ([self.topCard])
+        print "Top Card: " + str(self.topCard)
+
+        card_to_play = None
+        points_for_play = 0
+        playable_cards = [ ]
+
+        # Make a list of all possible cards that *could* be played
+        for each_current in self.my_cards:
+            if self.topCard[0] == "W" and len(self.topCard) == 2:
+                if topCard[1] == each_current[0]:
+                    playable_cards.append(each_current)
+            elif len(each_current) == 2: # If card is standard colour plus number.
+                if str(each_current[1]) == str(self.topCard[1]):
+                    playable_cards.append(each_current)
+                elif str(each_current[0]) == str(self.topCard[0]):
+                    playable_cards.append(each_current)
+            elif len(each_current) == 3: # If the card is a WD4 (wild card plus draw four)
+                if str(each_current) == "WD4":
+                    playable_cards.append(each_current)
+                elif str(each_current[0]) == str(self.topCard[0]):
+                    playable_cards.append(each_current)
+            else:
+                print "There is something seriously wrong!"
+
+        print "playable_cards: " + str(playable_cards)
+
+        # Determine which card among the ones which can be played is the best
+        # choice to make. Basically if the card is worth the most points, it
+        # should be played before any other playable card.
+
+        # self.special_scores
+        # self.colored_card_nums = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'R', 'S', 'D2' ]
+        # self.special_scores = { 'R' : 20, 'S' : 20, 'D2' : 20, 'W' : 50, 'WD4' : 50}
+
+        points_dict = { } 
+        # Create a dictionary with the point values of the cards that can play
+        for item in playable_cards:
+            if len(playable_cards) == 1:
+                card_to_play = item
+            elif len(playable_cards) == 2:
+                if item[1] == "S" or item[1] == "R":
+                    points_dict[item] = 20
+                else:
+                    points_dict[item] = item[1]
+            elif len(playable_cards) == 3:
+                #if item == "WD4":
+                #    points_
+                if item[1:3] == "D2":
+                    points_dict[item] = 20
+
+        print "points_dict: " + str(points_dict)
+
+        # Find highest value in dictionary
+        if len(points_dict) > 0:
+            b = points_dict.keys()
+            b.sort( key = points_dict.__getitem__ )
+            card_to_play = b[-1]
+
+        if card_to_play is None:
+            # Draw a new card
+            input.nick = jenny.config.nick
+            self.draw(jenny, input)
+        else:
+            color_to_play = random.choice(['R', 'G', 'B', 'Y'])
+            # Play the card
+            if len(card_to_play) == 3:
+                jenny.say(".play " + str(card_to_play[0:3]) + " " + str(color_to_play))
+            elif len(card_to_play) == 2:
+                jenny.say(".play " + str(card_to_play[0]) + " " + str(card_to_play[1]))
+            elif len(card_to_play) == 1:
+                jenny.say(".play " + str(card_to_play[0]) + " " + str(color_to_play))
+
+            self.play_part2 (jenny, input, card_to_play, card_to_play)
+
+        print "My Cards: " + str(self.players[jenny.config.nick])
+        print "=========="
 if __name__ == '__main__':
        print __doc__.strip()

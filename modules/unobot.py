@@ -91,6 +91,7 @@ class unobot:
         #========
         self.allowed_to_play = False
         self.my_cards = "" 
+        self.has_drawn = False
         #========
     
     def start(self, jenny, owner):
@@ -114,15 +115,11 @@ class unobot:
     def join (self, jenny, input):
         #print dir (jenny.bot)
         #print dir (input)
-        jenny.say("I'm joining a person to the game.")
         if self.game_on:
-            jenny.say("Game is on.")
             if input.nick not in self.players:
-                jenny.say("if input.nick not in self.players")
                 self.players[input.nick] = [ ]
                 self.playerOrder.append (input.nick)
                 if self.deck:
-                    jenny.say("if self.deck")
                     for i in xrange (0, 7):
                         self.players[input.nick].append (self.getCard ())
                     jenny.msg (CHANNEL, STRINGS['DEALING_IN'] % (input.nick, self.playerOrder.index (input.nick) + 1))
@@ -182,10 +179,19 @@ class unobot:
         self.play_part2 (jenny, input, searchcard, playcard)
 
     def play_part2 (self, jenny, input, searchcard, playcard):
+        print input.nick + "'s turn."
         print "searchcard: " + str(searchcard)
         print "playcard: " + str(playcard)
         self.drawn = False
         self.players[self.playerOrder[self.currentPlayer]].remove (searchcard)
+
+        #if searchcard not in self.players[self.playerOrder[self.currentPlayer]]:
+        #    jenny.msg (CHANNEL, STRINGS['DONT_HAVE'] % self.playerOrder[self.currentPlayer])
+        #    return
+
+        if not self.cardPlayable (playcard):
+            jenny.msg (CHANNEL, STRINGS['DOESNT_PLAY'] % self.playerOrder[self.currentPlayer])
+            return
         
         pl = self.currentPlayer
         
@@ -200,6 +206,8 @@ class unobot:
             return
             
         self.showOnTurn (jenny, input)
+        if input.nick == jenny.config.nick:
+            self.has_drawn = False
 
     def draw (self, jenny, input):
         if not self.game_on or not self.deck:
@@ -219,6 +227,7 @@ class unobot:
             self.make_a_move(jenny, input) 
     # this is not a typo, avoiding collision with Python's pass keyword
     def passs (self, jenny, input):
+        jenny.say("I'm trying to pass.")
         if not self.game_on or not self.deck:
             return
         if input.nick != self.playerOrder[self.currentPlayer]:
@@ -231,6 +240,8 @@ class unobot:
         jenny.msg (CHANNEL, STRINGS['PASSED'] % self.playerOrder[self.currentPlayer])
         self.incPlayer ()
         self.showOnTurn (jenny, input)
+        if input.nick == jenny.config.nick:
+            self.has_drawn = False
     
     def top10 (self, jenny):
         from copy import copy
@@ -262,7 +273,8 @@ class unobot:
             ret.append (a)
             ret.append (a)
         
-        ret *= 2
+        ret *= 4
+        random.shuffle (ret)
         random.shuffle (ret)
         return ret
     
@@ -414,7 +426,7 @@ class unobot:
     #=====
     def make_a_move (self, jenny, input):
         self.my_cards = self.players[jenny.config.nick]
-        print "My cards: " + str(self.my_cards)
+        print "My cards (beginning): " + str(self.my_cards)
 
         top_card = self.renderCards ([self.topCard])
         print "Top Card: " + str(self.topCard)
@@ -426,7 +438,7 @@ class unobot:
         # Make a list of all possible cards that *could* be played
         for each_current in self.my_cards:
             if self.topCard[0] == "W" and len(self.topCard) == 2:
-                if topCard[1] == each_current[0]:
+                if self.topCard[1] == each_current[0]:
                     playable_cards.append(each_current)
             elif len(each_current) == 2: # If card is standard colour plus number.
                 if str(each_current[1]) == str(self.topCard[1]):
@@ -437,6 +449,9 @@ class unobot:
                 if str(each_current) == "WD4":
                     playable_cards.append(each_current)
                 elif str(each_current[0]) == str(self.topCard[0]):
+                    playable_cards.append(each_current)
+            elif self.topCard[0] == "W" and len(self.topCard) == 4:
+                if self.topCard[3] == each_current[0]:
                     playable_cards.append(each_current)
             else:
                 print "There is something seriously wrong!"
@@ -456,12 +471,12 @@ class unobot:
         for item in playable_cards:
             if len(playable_cards) == 1:
                 card_to_play = item
-            elif len(playable_cards) == 2:
+            elif len(item) == 2:
                 if item[1] == "S" or item[1] == "R":
                     points_dict[item] = 20
                 else:
                     points_dict[item] = item[1]
-            elif len(playable_cards) == 3:
+            elif len(item) == 3:
                 #if item == "WD4":
                 #    points_
                 if item[1:3] == "D2":
@@ -478,20 +493,32 @@ class unobot:
         if card_to_play is None:
             # Draw a new card
             input.nick = jenny.config.nick
-            self.draw(jenny, input)
+            if self.has_drawn == False: 
+                # Draw a card if it hasn't already
+                self.has_drawn = True
+                self.draw(jenny, input)
+            elif self.has_drawn == True:
+                # Pass
+                self.passs(jenny, input)
+                self.has_drwan = False
+
         else:
             color_to_play = random.choice(['R', 'G', 'B', 'Y'])
             # Play the card
-            if len(card_to_play) == 3:
-                jenny.say(".play " + str(card_to_play[0:3]) + " " + str(color_to_play))
+            phrase = ""
+            if len(card_to_play) == 3 and card_to_play[0] != "W":
+                phrase = ".play " + str(card_to_play[0]) + " " + str(card_to_play[1:3])
+            elif len(card_to_play) == 3 and card_to_play[0] == "W":
+                phrase = ".play " + str(card_to_play) + " " + str(color_to_play)
+                card_to_play = card_to_play + str(color_to_play)
             elif len(card_to_play) == 2:
-                jenny.say(".play " + str(card_to_play[0]) + " " + str(card_to_play[1]))
+                phrase = ".play " + str(card_to_play[0]) + " " + str(card_to_play[1])
             elif len(card_to_play) == 1:
-                jenny.say(".play " + str(card_to_play[0]) + " " + str(color_to_play))
-
+                phrase = ".play " + str(card_to_play[0]) + " " + str(color_to_play)
+            jenny.say(phrase)
             self.play_part2 (jenny, input, card_to_play, card_to_play)
 
-        print "My Cards: " + str(self.players[jenny.config.nick])
+        print "My Cards (end): " + str(self.players[jenny.config.nick])
         print "=========="
 if __name__ == '__main__':
        print __doc__.strip()

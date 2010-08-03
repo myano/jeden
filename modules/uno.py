@@ -52,15 +52,9 @@ show_user_cards.priority = 'low'
 def jenny_join(jenny, input):
     if bot.allowed_to_play == True:
         time.sleep(2)
-        jenny.say("I'm also joining the game.")
         input.nick = jenny.config.nick
         bot.join(jenny, input)
 jenny_join.rule = '^.uno$'
-
-#def take_turn(jenny, input):
-#    uno_alg.make_a_move()
-#    print str(uno_alg.make_a_move.my_cards)
-#take_turn.rule = r'$nickname\'s\sturn.\sTop\sCard\:'
 
 def permission_to_play(jenny, input):
     text = input.group().split(": ")
@@ -68,4 +62,5 @@ def permission_to_play(jenny, input):
         bot.allowed_to_play = True
     elif text[1] == 'stop':
         bot.allowed_to_play = False
-permission_to_play.rule = r'(?ims)^(jenny|$nickname)\:\s.*'
+    jenny.say("I will join the next game.")
+permission_to_play.rule = r'(?i)^(jenny|$nickname)\:\s.*'

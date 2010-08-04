@@ -2,7 +2,7 @@ Installation
 
 1) Run ./jenny - this creates a default config file
 2) Edit ~/.jenny/default.py
-3) Run ./jenny - this now runs phenny with your settings
+3) Run ./jenny - this now runs jenny with your settings
 
 Enjoy!
 

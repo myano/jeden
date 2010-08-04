@@ -437,12 +437,16 @@ class unobot:
             if self.topCard[0] == "W" and len(self.topCard) == 2:
                 if self.topCard[1] == each_current[0]:
                     playable_cards.append(each_current)
-            elif len(each_current) == 2: # If card is standard colour plus number.
+            elif len(each_current) == 2: 
+                # If card is standard colour plus number.
                 if str(each_current[1]) == str(self.topCard[1]):
+                    # if the topCard number is the same as the each_current card
                     playable_cards.append(each_current)
                 elif str(each_current[0]) == str(self.topCard[0]):
+                    # if topCard and each_current are the same colour
                     playable_cards.append(each_current)
-            elif len(each_current) == 3: # If the card is a WD4 (wild card plus draw four)
+            elif len(each_current) == 3: 
+                # If the card is a WD4 (wild card plus draw four)
                 if str(each_current) == "WD4":
                     playable_cards.append(each_current)
                 elif str(each_current[0]) == str(self.topCard[0]):
@@ -473,11 +477,15 @@ class unobot:
             elif len(item) == 2:
                 if item[1] == "S" or item[1] == "R":
                     points_dict[item] = 20
+                elif item[1] in ['R', 'G', 'B', 'Y']:
+                    points_dict[item] = 50
                 else:
-                    points_dict[item] = item[1]
+                    points_dict[item] = int(item[1])
             elif len(item) == 3:
                 if item[1:3] == "D2":
                     points_dict[item] = 20
+            elif len(item) == 4:
+                points_dict[item] = 50
 
         print "points_dict: " + str(points_dict)
 

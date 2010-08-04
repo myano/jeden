@@ -22,8 +22,8 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVE
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-[18:03] <Lako> .play w 3
-[18:03] <unobot> TopMobil's turn. Top Card: *]
+[18:03] <Lako> .play w b
+[18:03] <unobot> TopMobil's turn. Top Card: [*]
 [18:03] [Notice] -unobot- Your cards: [4][9][4][8][D2][D2]
 [18:03] [Notice] -unobot- Next: hatcher (5 cards) - Lako (2 cards)
 [18:03] <TopMobil> :O

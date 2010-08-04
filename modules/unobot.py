@@ -224,7 +224,6 @@ class unobot:
             self.make_a_move(jenny, input) 
     # this is not a typo, avoiding collision with Python's pass keyword
     def passs (self, jenny, input):
-        jenny.say("I'm trying to pass.")
         if not self.game_on or not self.deck:
             return
         if input.nick != self.playerOrder[self.currentPlayer]:

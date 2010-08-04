@@ -1,4 +1,9 @@
+"""
+uno.py - jenny uno module
+Original Author: Tamas Marki
 
+Most of these were moved from unobot.py to here for clarity.
+"""
 from modules import unobot
 import time
 

@@ -434,29 +434,28 @@ class unobot:
         playable_cards = [ ]
 
         # Make a list of all possible cards that *could* be played
-        for each_current in self.my_cards:
-            if len(self.topCard) == 2 and self.topCard[0] == "W":
-                if self.topCard[1] == each_current[0]:
-                    playable_cards.append(each_current)
-            elif len(self.topCard) == 2:
-                if str(each_current[0]) == str(self.topCard[0]):
-                    # if topCard and each_current are the same colour
-                    playable_cards.append(each_current)
-                if len(each_current) == 2:
-                    if str(each_current[1]) == str(self.topCard[1]):
-                        # if the topCard number is the same as the each_current card
-                        playable_cards.append(each_current) 
-            elif len(self.topCard) == 3:
-                # If the colour of the current_card matches the colour of the 
-                # top card (when the top card is eq: BD2)
-                if str(each_current[0]) == str(self.topCard[0]):
-                    playable_cards.append(each_current)
-            elif len(self.topCard) == 4 and self.topCard[0] == "W":
-                if self.topCard[3] == each_current[0]:
-                    playable_cards.append(each_current)
-            else:
-                print "There is something seriously wrong! Here is \
-                the 'current_card': " + str(each_current)
+        for current_card in self.my_cards:
+            if len(current_card) == 1: # If it's a wild-card
+                playable_cards.append(current_card)
+            if len(current_card) == 2:
+                if self.topCard[0] == current_card[0]: # B1 matches B2 or BS
+                    playable_cards.append(current_card)
+                elif self.topCard[1] == current_card[1]: # BS matches RS
+                    playable_cards.append(current_card)
+            elif len(current_card) == 3: # If current_card is a BD2 or a WD4
+                if current_card[0] == self.topCard[0]: # if BD2 matches B1
+                    playable_cards.append(current_card)
+                elif len(self.topCard) == 2: # BD2 matches WB
+                    if current_card[0] == self.topCard[1]:
+                        playable_cards.append(current_card)
+                elif len(self.topCard) == 3: # BD2 matches RD2
+                    if current_card[1:3] == self.topCard[1:3]:
+                        playable_cards.append(current_card)
+                elif len(self.topCard) == 4: # BD2 matches WD4B
+                    if current_card[0] == self.topCard[3]:
+                        playable_cards.append(current_card)
+                elif current_card == "WD4":
+                    playable_cards.append(current_card)
 
         print "playable_cards: " + str(playable_cards)
 

@@ -4,7 +4,7 @@ bot.py - jenny IRC Bot
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/jenny/
+http://inamidst.com/phenny/
 """
 import sys, os, re, threading, imp
 import irc

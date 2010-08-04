@@ -4,7 +4,7 @@ tools.py - jenny Tools
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/jenny/
+http://inamidst.com/phenny/
 """
 
 def deprecated(old): 

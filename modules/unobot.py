@@ -203,8 +203,7 @@ class unobot:
             return
             
         self.showOnTurn (jenny, input)
-        if input.nick == jenny.config.nick:
-            self.has_drawn = False
+        self.has_drawn = False
 
     def draw (self, jenny, input):
         if not self.game_on or not self.deck:

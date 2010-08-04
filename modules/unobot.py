@@ -445,6 +445,8 @@ class unobot:
                 elif self.topCard[1] == current_card[1]: # BS matches RS
                     playable_cards.append(current_card)
             elif len(current_card) == 3: # If current_card is a BD2 or a WD4
+                if current_card == "WD4":
+                    playable_cards.append(current_card)
                 if current_card[0] == self.topCard[0]: # if BD2 matches B1
                     playable_cards.append(current_card)
                 elif len(self.topCard) == 2: # BD2 matches WB
@@ -456,9 +458,7 @@ class unobot:
                 elif len(self.topCard) == 4: # BD2 matches WD4B
                     if current_card[0] == self.topCard[3]:
                         playable_cards.append(current_card)
-                elif current_card == "WD4":
-                    playable_cards.append(current_card)
-
+        
         print "playable_cards: " + str(playable_cards)
 
         # Determine which card among the ones which can be played is the best

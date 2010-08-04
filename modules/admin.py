@@ -2,7 +2,6 @@
 """
 admin.py - Admin Module
 Original Author: Sean B. Palmer
-Forked by Michael S. Yanovich
 """
 
 import re

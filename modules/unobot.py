@@ -434,33 +434,28 @@ class unobot:
 
         # Make a list of all possible cards that *could* be played
         for each_current in self.my_cards:
-            if self.topCard[0] == "W" and len(self.topCard) == 2:
+            if len(self.topCard) == 2 and self.topCard[0] == "W":
                 if self.topCard[1] == each_current[0]:
                     playable_cards.append(each_current)
-            elif len(each_current) == 2: 
-                # If card is standard colour plus number.
+            elif len(self.topCard) == 2:
+                # If card is standard colour and a number.
                 if str(each_current[1]) == str(self.topCard[1]):
                     # if the topCard number is the same as the each_current card
                     playable_cards.append(each_current)
                 elif str(each_current[0]) == str(self.topCard[0]):
                     # if topCard and each_current are the same colour
                     playable_cards.append(each_current)
-            elif len(each_current) == 3: 
-                # If the current_card is a WD4 (wild card plus draw four)
-                if str(each_current) == "WD4":
+            elif len(self.topCard) == 3:
+                # If the colour of the current_card matches the colour of the 
+                # top card (when the top card is eq: BD2)
+                if str(each_current[0]) == str(self.topCard[0]):
                     playable_cards.append(each_current)
-                elif str(each_current[0]) == str(self.topCard[0]):
-                    playable_cards.append(each_current)
-            elif self.topCard[0] == "W" and len(self.topCard) == 4:
+            elif len(self.topCard) == 4 and self.topCard[0] == "W":
                 if self.topCard[3] == each_current[0]:
                     playable_cards.append(each_current)
-            elif each_current == "W":
-                playable_cards.append(each_current)
-            elif len(self.topCard) == 4:
-                if each_current[0] == self.topCard[3]:
-                    playable_cards.append(each_current)
             else:
-                print "There is something seriously wrong! Here is the 'current_card': " + str(each_current)
+                print "There is something seriously wrong! Here is \
+                the 'current_card': " + str(each_current)
 
         print "playable_cards: " + str(playable_cards)
 
@@ -497,7 +492,7 @@ class unobot:
             card_to_play = b[-1]
 
         if card_to_play is None:
-            # Draw a new card
+            # Draw a new card, since none will play
             input.nick = jenny.config.nick
             if self.has_drawn == False: 
                 # Draw a card if it hasn't already

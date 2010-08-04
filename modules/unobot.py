@@ -419,7 +419,7 @@ class unobot:
         except Exception, e:
             print 'Failed to write score file %s' % e
     
-    #=====
+    #====================================
     def make_a_move (self, jenny, input):
         time.sleep(2)
         self.my_cards = self.players[jenny.config.nick]

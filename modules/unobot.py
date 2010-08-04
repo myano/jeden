@@ -32,6 +32,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import random
 from datetime import datetime, timedelta
+import time
 
 CHANNEL = '##torvalds'
 SCOREFILE = "/home/yano/jenny/unoscores.txt"
@@ -184,10 +185,6 @@ class unobot:
         print "playcard: " + str(playcard)
         self.drawn = False
         self.players[self.playerOrder[self.currentPlayer]].remove (searchcard)
-
-        #if searchcard not in self.players[self.playerOrder[self.currentPlayer]]:
-        #    jenny.msg (CHANNEL, STRINGS['DONT_HAVE'] % self.playerOrder[self.currentPlayer])
-        #    return
 
         if not self.cardPlayable (playcard):
             jenny.msg (CHANNEL, STRINGS['DOESNT_PLAY'] % self.playerOrder[self.currentPlayer])
@@ -425,6 +422,7 @@ class unobot:
     
     #=====
     def make_a_move (self, jenny, input):
+        time.sleep(2)
         self.my_cards = self.players[jenny.config.nick]
         print "My cards (beginning): " + str(self.my_cards)
 
@@ -453,8 +451,10 @@ class unobot:
             elif self.topCard[0] == "W" and len(self.topCard) == 4:
                 if self.topCard[3] == each_current[0]:
                     playable_cards.append(each_current)
+            elif each_current == "W":
+                playable_cards.append(each_current)
             else:
-                print "There is something seriously wrong!"
+                print "There is something seriously wrong! Here is the 'current_card': " + str(each_current)
 
         print "playable_cards: " + str(playable_cards)
 
@@ -477,8 +477,6 @@ class unobot:
                 else:
                     points_dict[item] = item[1]
             elif len(item) == 3:
-                #if item == "WD4":
-                #    points_
                 if item[1:3] == "D2":
                     points_dict[item] = 20
 
@@ -506,6 +504,7 @@ class unobot:
             color_to_play = random.choice(['R', 'G', 'B', 'Y'])
             # Play the card
             phrase = ""
+            card_to_remove = card_to_play
             if len(card_to_play) == 3 and card_to_play[0] != "W":
                 phrase = ".play " + str(card_to_play[0]) + " " + str(card_to_play[1:3])
             elif len(card_to_play) == 3 and card_to_play[0] == "W":
@@ -515,8 +514,9 @@ class unobot:
                 phrase = ".play " + str(card_to_play[0]) + " " + str(card_to_play[1])
             elif len(card_to_play) == 1:
                 phrase = ".play " + str(card_to_play[0]) + " " + str(color_to_play)
+         
             jenny.say(phrase)
-            self.play_part2 (jenny, input, card_to_play, card_to_play)
+            self.play_part2 (jenny, input, card_to_remove, card_to_play)
 
         print "My Cards (end): " + str(self.players[jenny.config.nick])
         print "=========="

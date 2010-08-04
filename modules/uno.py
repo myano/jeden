@@ -26,17 +26,17 @@ deal.priority = 'low'
 
 def play(jenny, input):
     bot.play_part1 (jenny, input)
-play.commands = ['play']
+play.commands = ['play', 'p']
 play.priority = 'low'
 
 def draw(jenny, input):
     bot.draw (jenny, input)
-draw.commands = ['draw']
+draw.commands = ['draw', 'd']
 draw.priority = 'low'
 
 def passs(jenny, input):
     bot.passs (jenny, input)
-passs.commands = ['pass']
+passs.commands = ['pass', 'pa']
 passs.priority = 'low'
 
 def unotop10 (jenny, input):
@@ -51,7 +51,7 @@ show_user_cards.priority = 'low'
 
 def jenny_join(jenny, input):
     if bot.allowed_to_play == True:
-        time.sleep(2)
+        time.sleep(1)
         input.nick = jenny.config.nick
         bot.join(jenny, input)
 jenny_join.rule = '^.uno$'
@@ -60,7 +60,8 @@ def permission_to_play(jenny, input):
     text = input.group().split(": ")
     if text[1] == 'play':
         bot.allowed_to_play = True
+        jenny.say("I will join the next game.")
     elif text[1] == 'stop':
         bot.allowed_to_play = False
-    jenny.say("I will join the next game.")
+        jenny.say("I will only host the next game.")
 permission_to_play.rule = r'(?i)^(jenny|$nickname)\:\s.*'

@@ -462,10 +462,6 @@ class unobot:
         # choice to make. Basically if the card is worth the most points, it
         # should be played before any other playable card.
 
-        # self.special_scores
-        # self.colored_card_nums = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'R', 'S', 'D2' ]
-        # self.special_scores = { 'R' : 20, 'S' : 20, 'D2' : 20, 'W' : 50, 'WD4' : 50}
-
         points_dict = { } 
         # Create a dictionary with the point values of the cards that can play
         for item in playable_cards:

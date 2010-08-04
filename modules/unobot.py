@@ -180,7 +180,10 @@ class unobot:
         self.play_part2 (jenny, input, searchcard, playcard)
 
     def play_part2 (self, jenny, input, searchcard, playcard):
-        print input.nick + "'s turn."
+        if input.nick:
+            print input.nick + "'s turn."
+        else:
+            print "jenny_uno's turn."
         print "searchcard: " + str(searchcard)
         print "playcard: " + str(playcard)
         self.drawn = False

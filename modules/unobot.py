@@ -221,6 +221,7 @@ class unobot:
         self.players[self.playerOrder[self.currentPlayer]].append (c)
         jenny.notice (input.nick, STRINGS['DRAWN_CARD'] % self.renderCards ([c]))
         if input.nick == jenny.config.nick:
+            self.has_drawn = True
             self.make_a_move(jenny, input) 
     # this is not a typo, avoiding collision with Python's pass keyword
     def passs (self, jenny, input):
@@ -438,13 +439,13 @@ class unobot:
                 if self.topCard[1] == each_current[0]:
                     playable_cards.append(each_current)
             elif len(self.topCard) == 2:
-                # If card is standard colour and a number.
-                if str(each_current[1]) == str(self.topCard[1]):
-                    # if the topCard number is the same as the each_current card
-                    playable_cards.append(each_current)
-                elif str(each_current[0]) == str(self.topCard[0]):
+                if str(each_current[0]) == str(self.topCard[0]):
                     # if topCard and each_current are the same colour
                     playable_cards.append(each_current)
+                if len(each_current) == 2:
+                    if str(each_current[1]) == str(self.topCard[1]):
+                        # if the topCard number is the same as the each_current card
+                        playable_cards.append(each_current) 
             elif len(self.topCard) == 3:
                 # If the colour of the current_card matches the colour of the 
                 # top card (when the top card is eq: BD2)
@@ -490,6 +491,8 @@ class unobot:
             b = points_dict.keys()
             b.sort( key = points_dict.__getitem__ )
             card_to_play = b[-1]
+
+        print "self.has_drawn: " + str(self.has_drawn)
 
         if card_to_play is None:
             # Draw a new card, since none will play

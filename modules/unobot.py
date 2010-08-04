@@ -446,7 +446,7 @@ class unobot:
                     # if topCard and each_current are the same colour
                     playable_cards.append(each_current)
             elif len(each_current) == 3: 
-                # If the card is a WD4 (wild card plus draw four)
+                # If the current_card is a WD4 (wild card plus draw four)
                 if str(each_current) == "WD4":
                     playable_cards.append(each_current)
                 elif str(each_current[0]) == str(self.topCard[0]):
@@ -456,6 +456,9 @@ class unobot:
                     playable_cards.append(each_current)
             elif each_current == "W":
                 playable_cards.append(each_current)
+            elif len(self.topCard) == 4:
+                if each_current[0] == self.topCard[3]:
+                    playable_cards.append(each_current)
             else:
                 print "There is something seriously wrong! Here is the 'current_card': " + str(each_current)
 
@@ -472,20 +475,18 @@ class unobot:
         points_dict = { } 
         # Create a dictionary with the point values of the cards that can play
         for item in playable_cards:
-            if len(playable_cards) == 1:
-                card_to_play = item
+            if len(item) == 1:
+                points_dict[item] = 50
             elif len(item) == 2:
                 if item[1] == "S" or item[1] == "R":
                     points_dict[item] = 20
-                elif item[1] in ['R', 'G', 'B', 'Y']:
-                    points_dict[item] = 50
                 else:
                     points_dict[item] = int(item[1])
             elif len(item) == 3:
                 if item[1:3] == "D2":
                     points_dict[item] = 20
-            elif len(item) == 4:
-                points_dict[item] = 50
+                elif item == "WD4":
+                    points_dict[item] = 50
 
         print "points_dict: " + str(points_dict)
 
@@ -504,8 +505,8 @@ class unobot:
                 self.draw(jenny, input)
             elif self.has_drawn == True:
                 # Pass
+                self.has_drawn = False
                 self.passs(jenny, input)
-                self.has_drwan = False
 
         else:
             color_to_play = random.choice(['R', 'G', 'B', 'Y'])
@@ -521,6 +522,7 @@ class unobot:
                 phrase = ".play " + str(card_to_play[0]) + " " + str(card_to_play[1])
             elif len(card_to_play) == 1:
                 phrase = ".play " + str(card_to_play[0]) + " " + str(color_to_play)
+                card_to_play += str(color_to_play)
          
             jenny.say(phrase)
             self.play_part2 (jenny, input, card_to_remove, card_to_play)

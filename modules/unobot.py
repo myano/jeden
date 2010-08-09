@@ -204,9 +204,9 @@ class unobot:
             jenny.msg (CHANNEL, STRINGS['WIN'] % (self.playerOrder[pl], (datetime.now () - self.startTime)))
             self.gameEnded (jenny, self.playerOrder[pl])
             return
-            
+
+        self.has_drawn = False    
         self.showOnTurn (jenny, input)
-        self.has_drawn = False
 
     def draw (self, jenny, input):
         if not self.game_on or not self.deck:
@@ -444,7 +444,10 @@ class unobot:
                     playable_cards.append(current_card)
                 elif self.topCard[1] == current_card[1]: # BS matches RS
                     playable_cards.append(current_card)
-            elif len(current_card) == 3: # If current_card is a BD2 or a WD4
+                if len(self.topCard) == 4:
+                    if self.topCard[3] == current_card[0]: # BS matches WD4
+                        playable_cards.append(current_card)
+            elif len(current_card) == 3: # If current_card is a BD2 or aWD4
                 if current_card == "WD4":
                     playable_cards.append(current_card)
                 if current_card[0] == self.topCard[0]: # if BD2 matches B1

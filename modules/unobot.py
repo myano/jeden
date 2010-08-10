@@ -272,9 +272,10 @@ class unobot:
             ret.append (a)
             ret.append (a)
         
-        ret *= 4
+        ret *= 3
+
         random.shuffle (ret)
-        random.shuffle (ret)
+
         return ret
     
     def getCard(self):

@@ -20,8 +20,9 @@ unostop.commands = ['unostop']
 unostop.priority = 'low'
 
 def join(jenny, input):
+    jenny.say("I'm trying to join you to the game.")
     bot.join (jenny, input)
-join.rule = '^join$'
+join.rule = '.*join.*'
 join.priority = 'low'
 
 def deal(jenny, input):

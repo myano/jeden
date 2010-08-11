@@ -116,11 +116,15 @@ class unobot:
     def join (self, jenny, input):
         #print dir (jenny.bot)
         #print dir (input)
+        jenny.say("trying to join")
         if self.game_on:
+            jenny.say("self.game_on")
             if input.nick not in self.players:
+                jenny.say("input.nick not in self.players")
                 self.players[input.nick] = [ ]
                 self.playerOrder.append (input.nick)
                 if self.deck:
+                    jenny.say("self.deck")
                     for i in xrange (0, 7):
                         self.players[input.nick].append (self.getCard ())
                     jenny.msg (CHANNEL, STRINGS['DEALING_IN'] % (input.nick, self.playerOrder.index (input.nick) + 1))
@@ -438,14 +442,20 @@ class unobot:
 
         # Make a list of all possible cards that *could* be played
         for current_card in self.my_cards:
+            print "^^^^^"
+            print "current_card: " + str(current_card)
+            print "self.topCard: " + str(self.topCard)
+            print "^^^^^"
             if len(current_card) == 1: # If it's a wild-card
                 playable_cards.append(current_card)
-            if len(current_card) == 2:
+            elif len(current_card) == 2:
                 if self.topCard[0] == current_card[0]: # B1 matches B2 or BS
                     playable_cards.append(current_card)
                 elif self.topCard[1] == current_card[1]: # BS matches RS
                     playable_cards.append(current_card)
-                if len(self.topCard) == 4:
+                elif self.topCard[1] == current_card[0]:
+                    playable_cards.append(current_card)
+                if len(self.topCard) == 4: # if current_card is G3 matches WD4G
                     if self.topCard[3] == current_card[0]: # BS matches WD4
                         playable_cards.append(current_card)
             elif len(current_card) == 3: # If current_card is a BD2 or aWD4
@@ -494,6 +504,7 @@ class unobot:
             card_to_play = b[-1]
 
         print "self.has_drawn: " + str(self.has_drawn)
+        print "card_to_play: " + str(card_to_play)
 
         if card_to_play is None:
             # Draw a new card, since none will play
@@ -506,8 +517,8 @@ class unobot:
                 # Pass
                 self.has_drawn = False
                 self.passs(jenny, input)
-
         else:
+            # Improve the colour to play, so it's not random, but more intelligent.
             color_to_play = random.choice(['R', 'G', 'B', 'Y'])
             # Play the card
             phrase = ""

@@ -73,7 +73,7 @@ STRINGS = {
     'GAINS' : '\x0300,01%s gains %s points!',
 }
 
-class unobot:
+class UnoBot:
     def __init__ (self):
         self.colored_card_nums = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'R', 'S', 'D2' ]
         self.special_scores = { 'R' : 20, 'S' : 20, 'D2' : 20, 'W' : 50, 'WD4' : 50}
@@ -539,5 +539,73 @@ class unobot:
 
         print "My Cards (end): " + str(self.players[jenny.config.nick])
         print "=========="
+        
+# ======================================================================
+unobot = UnoBot()
+
+def uno(jenny, input):
+    unobot.start (jenny, input.nick)
+uno.commands = ['uno']
+uno.priority = 'low'
+
+def unostop(jenny, input):
+    unobot.stop (jenny, input)
+unostop.commands = ['unostop']
+unostop.priority = 'low'
+
+def join(jenny, input):
+    jenny.say("I'm trying to join you to the game.")
+    unobot.join (jenny, input)
+join.rule = '.*join.*'
+join.priority = 'low'
+
+def deal(jenny, input):
+    unobot.deal (jenny, input)
+deal.commands = ['deal']
+deal.priority = 'low'
+
+def play(jenny, input):
+    unobot.play_part1 (jenny, input)
+play.commands = ['play', 'p']
+play.priority = 'low'
+
+def draw(jenny, input):
+    unobot.draw (jenny, input)
+draw.commands = ['draw', 'd']
+draw.priority = 'low'
+
+def passs(jenny, input):
+    unobot.passs (jenny, input)
+passs.commands = ['pass', 'pa']
+passs.priority = 'low'
+
+def unotop10 (jenny, input):
+    unobot.top10 (jenny)
+unotop10.commands = ['unotop10']
+unotop10.priority = 'low'
+
+def show_user_cards (jenny, input):
+    unobot.showCards (jenny, input.nick)
+show_user_cards.commands = ['cards']
+show_user_cards.priority = 'low'
+
+def jenny_join(jenny, input):
+    if unobot.allowed_to_play == True:
+        time.sleep(1)
+        input.nick = jenny.config.nick
+        unobot.join(jenny, input)
+jenny_join.rule = '^.uno$'
+
+def permission_to_play(jenny, input):
+    text = input.group().split(": ")
+    if text[1] == 'play':
+        unobot.allowed_to_play = True
+        jenny.say("I will join the next game.")
+    elif text[1] == 'stop':
+        unobot.allowed_to_play = False
+        jenny.say("I will only host the next game.")
+permission_to_play.rule = r'(?i)^(jenny|$nickname)\:\s.*'
+
+        
 if __name__ == '__main__':
        print __doc__.strip()

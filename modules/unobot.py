@@ -22,7 +22,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVE
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-[18:03] <Lako> .play w b
+[18:03] <Lako> .play w 3
 [18:03] <unobot> TopMobil's turn. Top Card: [*]
 [18:03] [Notice] -unobot- Your cards: [4][9][4][8][D2][D2]
 [18:03] [Notice] -unobot- Next: hatcher (5 cards) - Lako (2 cards)
@@ -32,7 +32,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import random
 from datetime import datetime, timedelta
-import time
 
 CHANNEL = '##torvalds'
 SCOREFILE = "/home/yano/jenny/unoscores.txt"
@@ -60,7 +59,7 @@ STRINGS = {
     'DRAW_FIRST' : '\x0300,01%s, you need to draw first!',
     'PASSED' : '\x0300,01%s passed!',
     'NO_SCORES' : '\x0300,01No scores yet',
-    'SCORE_ROW' : '\x0300,01#%s %s (%s points %s games, %s won, %s wasted)',
+    'SCORE_ROW' : '\x0300,01#%s %s (%s points, %s games, %s won, %.2f points per game)',
     'TOP_CARD' : '\x0300,01%s\'s turn. Top Card: %s',
     'YOUR_CARDS' : '\x0300,01Your cards: %s',
     'NEXT_START' : '\x0300,01Next: ',
@@ -88,70 +87,55 @@ class UnoBot:
         self.drawn = False
         self.scoreFile = SCOREFILE
         self.deck = [ ]
-
-        #========
-        self.allowed_to_play = False
-        self.my_cards = "" 
-        self.has_drawn = False
-        #========
     
     def start(self, jenny, owner):
-        time.sleep(0.25)
         if self.game_on:
-            jenny.msg (CHANNEL, str(STRINGS['ALREADY_STARTED'] % self.game_on))
+            jenny.msg (CHANNEL, STRINGS['ALREADY_STARTED'] % self.game_on)
         else:
             self.game_on = owner
             self.deck = [ ]
-            jenny.msg (CHANNEL, str(STRINGS['GAME_STARTED'] % owner))
+            jenny.msg (CHANNEL, STRINGS['GAME_STARTED'] % owner)
             self.players = { }
             self.players[owner] = [ ]
             self.playerOrder = [ owner ]
     
     def stop (self, jenny, input):
-        time.sleep(0.25)
         if input.nick == self.game_on:
-            jenny.msg (CHANNEL, str(STRINGS['GAME_STOPPED']))
+            jenny.msg (CHANNEL, STRINGS['GAME_STOPPED'])
             self.game_on = False
         elif self.game_on:
-            jenny.msg (CHANNEL, str(STRINGS['CANT_STOP'] % self.game_on))
-        time.sleep(0.25)
+            jenny.msg (CHANNEL, STRINGS['CANT_STOP'] % self.game_on)
             
     def join (self, jenny, input):
-        time.sleep(0.25)
         #print dir (jenny.bot)
         #print dir (input)
-        jenny.say("trying to join")
         if self.game_on:
-            jenny.say("self.game_on")
             if input.nick not in self.players:
-                jenny.say("input.nick not in self.players")
                 self.players[input.nick] = [ ]
                 self.playerOrder.append (input.nick)
                 if self.deck:
-                    jenny.say("self.deck")
                     for i in xrange (0, 7):
                         self.players[input.nick].append (self.getCard ())
-                    jenny.msg (CHANNEL, str(STRINGS['DEALING_IN'] % (input.nick, self.playerOrder.index (input.nick) + 1)))
+                    jenny.msg (CHANNEL, STRINGS['DEALING_IN'] % (input.nick, self.playerOrder.index (input.nick) + 1))
                 else:
-                    jenny.msg (CHANNEL, str(STRINGS['JOINED'] % (input.nick, self.playerOrder.index (input.nick) + 1)))
+                    jenny.msg (CHANNEL, STRINGS['JOINED'] % (input.nick, self.playerOrder.index (input.nick) + 1))
                     if len (self.players) > 1:
-                        jenny.msg (CHANNEL, str(STRINGS['ENOUGH']))
+                        jenny.msg (CHANNEL, STRINGS['ENOUGH'])
         else:
-            jenny.msg (CHANNEL, str(STRINGS['NOT_STARTED']))
+            jenny.msg (CHANNEL, STRINGS['NOT_STARTED'])
     
     def deal (self, jenny, input):
-        time.sleep(0.25)
         if not self.game_on:
-            jenny.msg (CHANNEL, str(STRINGS['NOT_STARTED']))
+            jenny.msg (CHANNEL, STRINGS['NOT_STARTED'])
             return
         if len (self.players) < 2:
-            jenny.msg (CHANNEL, str(STRINGS['NOT_ENOUGH']))
+            jenny.msg (CHANNEL, STRINGS['NOT_ENOUGH'])
             return
         if input.nick != self.game_on:
-            jenny.msg (CHANNEL, str(STRINGS['NEEDS_TO_DEAL'] % self.game_on))
+            jenny.msg (CHANNEL, STRINGS['NEEDS_TO_DEAL'] % self.game_on)
             return
         if len (self.deck):
-            jenny.msg (CHANNEL, str(STRINGS['ALREADY_DEALT']))
+            jenny.msg (CHANNEL, STRINGS['ALREADY_DEALT'])
             return
         self.startTime = datetime.now ()
         self.deck = self.createnewdeck ()
@@ -162,14 +146,13 @@ class UnoBot:
         while self.topCard in ['W', 'WD4']: self.topCard = self.getCard ()
         self.currentPlayer = 1
         self.cardPlayed (jenny, self.topCard)
-        self.showOnTurn (jenny, input)
+        self.showOnTurn (jenny)
     
-    def play_part1 (self, jenny, input):
-        time.sleep(0.25)
+    def play (self, jenny, input):
         if not self.game_on or not self.deck:
             return
         if input.nick != self.playerOrder[self.currentPlayer]:
-            jenny.msg (CHANNEL, str(STRINGS['ON_TURN'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['ON_TURN'] % self.playerOrder[self.currentPlayer])
             return
         tok = [z.strip () for z in str (input).upper ().split (' ')]
         if len (tok) != 3:
@@ -180,30 +163,15 @@ class UnoBot:
         else:
             searchcard = (tok[1] + tok[2])
         if searchcard not in self.players[self.playerOrder[self.currentPlayer]]:
-            jenny.msg (CHANNEL, str(STRINGS['DONT_HAVE'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['DONT_HAVE'] % self.playerOrder[self.currentPlayer])
             return
         playcard = (tok[1] + tok[2])
         if not self.cardPlayable (playcard):
-            jenny.msg (CHANNEL, str(STRINGS['DOESNT_PLAY'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['DOESNT_PLAY'] % self.playerOrder[self.currentPlayer])
             return
-
-        self.play_part2 (jenny, input, searchcard, playcard)
-
-    def play_part2 (self, jenny, input, searchcard, playcard):
-        time.sleep(0.25)
-        if input.nick:
-            print input.nick + "'s turn."
-        else:
-            print "jenny_uno's turn."
-        print "searchcard: " + str(searchcard)
-        print "playcard: " + str(playcard)
+        
         self.drawn = False
-        print "========" + str(self.players[self.playerOrder[self.currentPlayer]]) + " ===== " + str(searchcard)
         self.players[self.playerOrder[self.currentPlayer]].remove (searchcard)
-
-        if not self.cardPlayable (playcard):
-            jenny.msg (CHANNEL, str(STRINGS['DOESNT_PLAY'] % self.playerOrder[self.currentPlayer]))
-            return
         
         pl = self.currentPlayer
         
@@ -211,53 +179,45 @@ class UnoBot:
         self.cardPlayed (jenny, playcard)
 
         if len (self.players[self.playerOrder[pl]]) == 1:
-            jenny.msg (CHANNEL, str(STRINGS['UNO'] % self.playerOrder[pl]))
+            jenny.msg (CHANNEL, STRINGS['UNO'] % self.playerOrder[pl])
         elif len (self.players[self.playerOrder[pl]]) == 0:
-            jenny.msg (CHANNEL, str(STRINGS['WIN'] % (self.playerOrder[pl], (datetime.now () - self.startTime))))
+            jenny.msg (CHANNEL, STRINGS['WIN'] % (self.playerOrder[pl], (datetime.now () - self.startTime)))
             self.gameEnded (jenny, self.playerOrder[pl])
             return
-
-        self.has_drawn = False    
-        self.showOnTurn (jenny, input)
+            
+        self.showOnTurn (jenny)
 
     def draw (self, jenny, input):
-        time.sleep(0.25)
         if not self.game_on or not self.deck:
             return
         if input.nick != self.playerOrder[self.currentPlayer]:
-            jenny.msg (CHANNEL, str(STRINGS['ON_TURN'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['ON_TURN'] % self.playerOrder[self.currentPlayer])
             return
         if self.drawn:
-            jenny.msg (CHANNEL, str(STRINGS['DRAWN_ALREADY']))
+            jenny.msg (CHANNEL, STRINGS['DRAWN_ALREADY'])
             return
         self.drawn = True
-        jenny.msg (CHANNEL, str(STRINGS['DRAWS'] % self.playerOrder[self.currentPlayer]))
+        jenny.msg (CHANNEL, STRINGS['DRAWS'] % self.playerOrder[self.currentPlayer])
         c = self.getCard ()
         self.players[self.playerOrder[self.currentPlayer]].append (c)
-        jenny.notice (input.nick, str(STRINGS['DRAWN_CARD'] % self.renderCards ([c])))
-        if input.nick == jenny.config.nick:
-            self.has_drawn = True
-            self.make_a_move(jenny, input) 
+        jenny.notice (input.nick, STRINGS['DRAWN_CARD'] % self.renderCards ([c]))
+
     # this is not a typo, avoiding collision with Python's pass keyword
     def passs (self, jenny, input):
-        time.sleep(0.25)
         if not self.game_on or not self.deck:
             return
         if input.nick != self.playerOrder[self.currentPlayer]:
-            jenny.msg (CHANNEL, str(STRINGS['ON_TURN'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['ON_TURN'] % self.playerOrder[self.currentPlayer])
             return
         if not self.drawn:
-            jenny.msg (CHANNEL, str(STRINGS['DRAW_FIRST'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['DRAW_FIRST'] % self.playerOrder[self.currentPlayer])
             return
         self.drawn = False
-        jenny.msg (CHANNEL, str(STRINGS['PASSED'] % self.playerOrder[self.currentPlayer]))
+        jenny.msg (CHANNEL, STRINGS['PASSED'] % self.playerOrder[self.currentPlayer])
         self.incPlayer ()
-        self.showOnTurn (jenny, input)
-        if input.nick == jenny.config.nick:
-            self.has_drawn = False
+        self.showOnTurn (jenny)
     
     def top10 (self, jenny):
-        time.sleep(0.25)
         from copy import copy
         prescores = [ ]
         try:
@@ -270,16 +230,17 @@ class UnoBot:
             f.close ()
         except: pass
         prescores = sorted (prescores, lambda x, y: cmp ((y[1] != '0') and (float (y[3]) / int (y[1])) or 0, (x[1] != '0') and (float (x[3]) / int (x[1])) or 0))
+        #prescores = sorted(prescores, lambda x, y: cmp ((y[1] != '0') and (float(y[3]) / int(y[1])) and (float(y[2]) / int(y[1])) or 0, (x[1] != '0') and (float(x[3]) / int(x[1])) and (float(x[2]) / int(x[1])) or 0))
         if not prescores:
-            jenny.say(str(STRINGS['NO_SCORES']))
+            jenny.say(STRINGS['NO_SCORES'])
         i = 1
         for z in prescores[:10]:
-            jenny.say(str(STRINGS['SCORE_ROW'] % (i, z[0], z[3], z[1], z[2], timedelta (seconds = int (z[4])))))
+            jenny.say(STRINGS['SCORE_ROW'] % (i, z[0], z[3], z[1], z[2], float(z[3])/float(z[1])))
+            #jenny.say("additional info: " + mystr) 
             i += 1
 
     
     def createnewdeck (self):
-        time.sleep(0.25)
         ret = [ ]
         for a in self.colored_card_nums:
             for b in self.colors:
@@ -287,27 +248,21 @@ class UnoBot:
         for a in self.special_cards: 
             ret.append (a)
             ret.append (a)
-        
         ret *= 3
-
         random.shuffle (ret)
 
         return ret
     
     def getCard(self):
-        time.sleep(0.25)
         ret = self.deck[0]
         self.deck.pop (0)
         if not self.deck:
             self.deck = self.createnewdeck ()        
         return ret
     
-    def showOnTurn (self, jenny, input):
-        time.sleep(0.25)
-        jenny.msg (CHANNEL, str(STRINGS['TOP_CARD'] % (self.playerOrder[self.currentPlayer], self.renderCards ([self.topCard]))))
-        if self.playerOrder[self.currentPlayer] == jenny.config.nick:
-            self.make_a_move(jenny, input)
-        jenny.notice (self.playerOrder[self.currentPlayer], str(STRINGS['YOUR_CARDS'] % self.renderCards (self.players[self.playerOrder[self.currentPlayer]])))
+    def showOnTurn (self, jenny):
+        jenny.msg (CHANNEL, STRINGS['TOP_CARD'] % (self.playerOrder[self.currentPlayer], self.renderCards ([self.topCard])))
+        jenny.notice (self.playerOrder[self.currentPlayer], STRINGS['YOUR_CARDS'] % self.renderCards (self.players[self.playerOrder[self.currentPlayer]]))
         msg = STRINGS['NEXT_START']
         tmp = self.currentPlayer + self.way
         if tmp == len (self.players):
@@ -316,23 +271,41 @@ class UnoBot:
             tmp = len (self.players) - 1
         arr = [ ]
         while tmp != self.currentPlayer:
-            arr.append (str(STRINGS['NEXT_PLAYER'] % (self.playerOrder[tmp], len (self.players[self.playerOrder[tmp]]))))
+            arr.append (STRINGS['NEXT_PLAYER'] % (self.playerOrder[tmp], len (self.players[self.playerOrder[tmp]])))
             tmp = tmp + self.way
             if tmp == len (self.players):
                 tmp = 0
             if tmp < 0:
                 tmp = len (self.players) - 1
         msg += ' - '.join (arr)
-        jenny.notice (str(self.playerOrder[self.currentPlayer]), str(msg))
+        jenny.notice (self.playerOrder[self.currentPlayer], msg)
     
     def showCards (self, jenny, user):
-        time.sleep(0.25)
         if not self.game_on or not self.deck:
             return
-        jenny.notice (user, str(STRINGS['YOUR_CARDS'] % self.renderCards (self.players[user])))
+        if user not in self.players:
+            msg = STRINGS['NEXT_START']
+            tmp = self.currentPlayer + self.way
+            if tmp == len (self.players):
+                tmp = 0
+            if tmp < 0:
+                tmp = len (self.players) - 1
+            arr = [ ]
+            k = len(self.players)
+            while k > 0:
+                arr.append (STRINGS['NEXT_PLAYER'] % (self.playerOrder[tmp], len (self.players[self.playerOrder[tmp]])))
+                tmp = tmp + self.way
+                if tmp == len (self.players):
+                    tmp = 0
+                if tmp < 0:
+                    tmp = len (self.players) - 1
+                k-=1
+            msg += ' - '.join (arr)
+            jenny.notice (user, msg) 
+        else:
+            jenny.notice (user, STRINGS['YOUR_CARDS'] % self.renderCards (self.players[user]))
 
     def renderCards (self, cards):
-        time.sleep(0.25)
         ret = [ ]
         for c in sorted (cards):
             if c in ['W', 'WD4']:
@@ -354,7 +327,6 @@ class UnoBot:
         return ''.join (ret)
     
     def cardPlayable (self, card):
-        time.sleep(0.25)
         if card[0] == 'W' and card[-1] in self.colors:
             return True
         if self.topCard[0] == 'W':
@@ -362,24 +334,23 @@ class UnoBot:
         return (card[0] == self.topCard[0]) or (card[1] == self.topCard[1])
     
     def cardPlayed (self, jenny, card):
-        time.sleep(0.25)
         if card[1:] == 'D2':
             jenny.msg (CHANNEL, STRINGS['D2'] % self.playerOrder[self.currentPlayer])
             z = [self.getCard (), self.getCard ()]
-            jenny.notice(self.playerOrder[self.currentPlayer], str(STRINGS['CARDS'] % self.renderCards (z)))
+            jenny.notice(self.playerOrder[self.currentPlayer], STRINGS['CARDS'] % self.renderCards (z))
             self.players[self.playerOrder[self.currentPlayer]].extend (z)
             self.incPlayer ()
         elif card[:2] == 'WD':
-            jenny.msg (CHANNEL, str(STRINGS['WD4'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['WD4'] % self.playerOrder[self.currentPlayer])
             z = [self.getCard (), self.getCard (), self.getCard (), self.getCard ()]
-            jenny.notice(self.playerOrder[self.currentPlayer], str(STRINGS['CARDS'] % self.renderCards (z)))
+            jenny.notice(self.playerOrder[self.currentPlayer], STRINGS['CARDS'] % self.renderCards (z))
             self.players[self.playerOrder[self.currentPlayer]].extend (z)
             self.incPlayer ()
         elif card[1] == 'S':
-            jenny.msg (CHANNEL, str(STRINGS['SKIPPED'] % self.playerOrder[self.currentPlayer]))
+            jenny.msg (CHANNEL, STRINGS['SKIPPED'] % self.playerOrder[self.currentPlayer])
             self.incPlayer ()
         elif card[1] == 'R' and card[0] != 'W':
-            jenny.msg (CHANNEL, str(STRINGS['REVERSED']))
+            jenny.msg (CHANNEL, STRINGS['REVERSED'])
             if len(self.players) > 2:
                 self.way = -self.way
                 self.incPlayer ()
@@ -389,7 +360,6 @@ class UnoBot:
         self.topCard = card
     
     def gameEnded (self, jenny, winner):
-        time.sleep(0.25)
         try:
             score = 0
             for p in self.players:
@@ -400,7 +370,7 @@ class UnoBot:
                         score += self.special_scores[c[1:]]
                     else:
                         score += int (c[1])
-            jenny.msg (CHANNEL, str(STRINGS['GAINS'] % (winner, score)))
+            jenny.msg(CHANNEL, STRINGS['GAINS'] % (winner, score))
             self.saveScores (self.players.keys (), winner, score, (datetime.now () - self.startTime).seconds)
         except Exception, e:
             print 'Score error: %s' % e
@@ -413,7 +383,6 @@ class UnoBot:
         
     
     def incPlayer (self):
-        time.sleep(0.25)
         self.currentPlayer = self.currentPlayer + self.way
         if self.currentPlayer == len (self.players):
             self.currentPlayer = 0
@@ -421,7 +390,6 @@ class UnoBot:
             self.currentPlayer = len (self.players) - 1
     
     def saveScores (self, players, winner, score, time):
-        time.sleep(0.25)
         from copy import copy
         prescores = { }
         try:
@@ -447,122 +415,12 @@ class UnoBot:
             f.close ()
         except Exception, e:
             print 'Failed to write score file %s' % e
-    
-    #====================================
-    def make_a_move (self, jenny, input):
-        time.sleep(5)
-        self.my_cards = self.players[jenny.config.nick]
-        print "My cards (beginning): " + str(self.my_cards)
+    def showTopCard_demand (self, jenny):
+        if not self.game_on or not self.deck:
+            return
+        jenny.msg (CHANNEL, STRINGS['TOP_CARD'] % (self.playerOrder[self.currentPlayer], self.renderCards ([self.topCard])))
 
-        top_card = self.renderCards ([self.topCard])
-        print "Top Card: " + str(self.topCard)
-
-        card_to_play = None
-        points_for_play = 0
-        playable_cards = [ ]
-
-        # Make a list of all possible cards that *could* be played
-        for current_card in self.my_cards:
-            print "^^^^^"
-            print "current_card: " + str(current_card)
-            print "self.topCard: " + str(self.topCard)
-            print "^^^^^"
-            if len(current_card) == 1: # If it's a wild-card
-                playable_cards.append(current_card)
-            elif len(current_card) == 2:
-                if self.topCard[0] == current_card[0]: # B1 matches B2 or BS
-                    playable_cards.append(current_card)
-                elif self.topCard[1] == current_card[1]: # BS matches RS
-                    playable_cards.append(current_card)
-                elif self.topCard[1] == current_card[0]:
-                    playable_cards.append(current_card)
-                if len(self.topCard) == 4: # if current_card is G3 matches WD4G
-                    if self.topCard[3] == current_card[0]: # BS matches WD4
-                        playable_cards.append(current_card)
-            elif len(current_card) == 3: # If current_card is a BD2 or aWD4
-                if current_card == "WD4":
-                    playable_cards.append(current_card)
-                if current_card[0] == self.topCard[0]: # if BD2 matches B1
-                    playable_cards.append(current_card)
-                elif len(self.topCard) == 2: # BD2 matches WB
-                    if current_card[0] == self.topCard[1]:
-                        playable_cards.append(current_card)
-                elif len(self.topCard) == 3: # BD2 matches RD2
-                    if current_card[1:3] == self.topCard[1:3]:
-                        playable_cards.append(current_card)
-                elif len(self.topCard) == 4: # BD2 matches WD4B
-                    if current_card[0] == self.topCard[3]:
-                        playable_cards.append(current_card)
-        
-        print "playable_cards: " + str(playable_cards)
-
-        # Determine which card among the ones which can be played is the best
-        # choice to make. Basically if the card is worth the most points, it
-        # should be played before any other playable card.
-
-        points_dict = { } 
-        # Create a dictionary with the point values of the cards that can play
-        for item in playable_cards:
-            if len(item) == 1:
-                points_dict[item] = 50
-            elif len(item) == 2:
-                if item[1] == "S" or item[1] == "R":
-                    points_dict[item] = 20
-                else:
-                    points_dict[item] = int(item[1])
-            elif len(item) == 3:
-                if item[1:3] == "D2":
-                    points_dict[item] = 20
-                elif item == "WD4":
-                    points_dict[item] = 50
-
-        print "points_dict: " + str(points_dict)
-
-        # Find highest value in dictionary
-        if len(points_dict) > 0:
-            b = points_dict.keys()
-            b.sort( key = points_dict.__getitem__ )
-            card_to_play = b[-1]
-
-        print "self.has_drawn: " + str(self.has_drawn)
-        print "card_to_play: " + str(card_to_play)
-
-        if card_to_play is None:
-            # Draw a new card, since none will play
-            input.nick = jenny.config.nick
-            if self.has_drawn == False: 
-                # Draw a card if it hasn't already
-                self.has_drawn = True
-                self.draw(jenny, input)
-            elif self.has_drawn == True:
-                # Pass
-                self.has_drawn = False
-                self.passs(jenny, input)
-        else:
-            # Improve the colour to play, so it's not random, but more intelligent.
-            color_to_play = random.choice(['R', 'G', 'B', 'Y'])
-            # Play the card
-            phrase = ""
-            card_to_remove = card_to_play
-            if len(card_to_play) == 3 and card_to_play[0] != "W":
-                phrase = ".play " + str(card_to_play[0]) + " " + str(card_to_play[1:3])
-            elif len(card_to_play) == 3 and card_to_play[0] == "W":
-                phrase = ".play " + str(card_to_play) + " " + str(color_to_play)
-                card_to_play = card_to_play + str(color_to_play)
-            elif len(card_to_play) == 2:
-                phrase = ".play " + str(card_to_play[0]) + " " + str(card_to_play[1])
-            elif len(card_to_play) == 1:
-                phrase = ".play " + str(card_to_play[0]) + " " + str(color_to_play)
-                card_to_play += str(color_to_play)
-         
-            jenny.say(str(phrase))
-            self.play_part2 (jenny, input, card_to_remove, card_to_play)
-
-        print "My Cards (end): " + str(self.players[jenny.config.nick])
-        print "=========="
-        
-# ======================================================================
-unobot = UnoBot()
+unobot = UnoBot ()
 
 def uno(jenny, input):
     unobot.start (jenny, input.nick)
@@ -575,9 +433,8 @@ unostop.commands = ['unostop']
 unostop.priority = 'low'
 
 def join(jenny, input):
-    jenny.say("I'm trying to join you to the game.")
     unobot.join (jenny, input)
-join.rule = 'join'
+join.rule = '^join$'
 join.priority = 'low'
 
 def deal(jenny, input):
@@ -586,7 +443,7 @@ deal.commands = ['deal']
 deal.priority = 'low'
 
 def play(jenny, input):
-    unobot.play_part1 (jenny, input)
+    unobot.play (jenny, input)
 play.commands = ['play', 'p']
 play.priority = 'low'
 
@@ -610,23 +467,17 @@ def show_user_cards (jenny, input):
 show_user_cards.commands = ['cards']
 show_user_cards.priority = 'low'
 
-def jenny_join(jenny, input):
-    if unobot.allowed_to_play == True:
-        time.sleep(0.25)
-        input.nick = jenny.config.nick
-        unobot.join(jenny, input)
-jenny_join.commands = ['uno']
+def help_uno (jenny, input):
+    jenny.reply("To start a game, type '.uno'. | Type 'join' to join a game. | To play the syntax is '.play <first letter of colour> <face card>' | If you can't make a move you can '.draw' | If you still can't make a move then '.pass' | For example, to play a blue 9, type '.play b 9'")
+    jenny.reply("To play a wild-card and make the next colour blue, it's '.play w b' | To play a wild draw 4 and make next colour green it's '.play wd4 g'")
+help_uno.commands = ['help-uno']
+help_uno.priority = 'low'
 
-def permission_to_play(jenny, input):
-    text = input.group().split(": ")
-    if text[1] == 'play':
-        unobot.allowed_to_play = True
-        jenny.say("I will join the next game.")
-    elif text[1] == 'stop':
-        unobot.allowed_to_play = False
-        jenny.say("I will only host the next game.")
-permission_to_play.rule = r'(?i)^(jenny|$nickname)\:\s.*'
+def top_card (jenny, input):
+    unobot.showTopCard_demand(jenny)
+top_card.commands = ['top']
+top_card.priority = 'low'
 
-        
 if __name__ == '__main__':
-       print __doc__.strip()
+    print __doc__.strip()
+

@@ -57,6 +57,7 @@ def run(config):
    if hasattr(t, 'run'): 
       t.run()
    else: t.start()
+    
 
 if __name__ == '__main__': 
    print __doc__

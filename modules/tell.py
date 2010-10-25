@@ -4,7 +4,7 @@ tell.py - Phenny Tell and Ask Module
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import os, re, time, random
@@ -47,7 +47,7 @@ def dumpReminders(fn, data):
 
 def setup(self): 
    fn = self.nick + '-' + self.config.host + '.tell.db'
-   self.tell_filename = os.path.join(os.path.expanduser('~/.phenny'), fn)
+   self.tell_filename = os.path.join(os.path.expanduser('~/.jenny'), fn)
    if not os.path.exists(self.tell_filename): 
       try: f = open(self.tell_filename, 'w')
       except OSError: pass
@@ -56,7 +56,7 @@ def setup(self):
          f.close()
    self.reminders = loadReminders(self.tell_filename) # @@ tell
 
-def f_remind(phenny, input): 
+def f_remind(jenny, input): 
    teller = input.nick
 
    # @@ Multiple comma-separated tellees? Cf. Terje, #swhack, 2006-04-15
@@ -68,22 +68,22 @@ def f_remind(phenny, input):
    tellee_original = tellee.rstrip('.,:;')
    tellee = tellee_original.lower()
 
-   if not os.path.exists(phenny.tell_filename): 
+   if not os.path.exists(jenny.tell_filename): 
       return
 
    if len(tellee) > 20: 
-      return phenny.reply('That nickname is too long.')
+      return jenny.reply('That nickname is too long.')
 
    timenow = time.strftime('%d %b %H:%MZ', time.gmtime())
-   if not tellee in (teller.lower(), phenny.nick, 'me'): # @@
+   if not tellee in (teller.lower(), jenny.nick, 'me'): # @@
       # @@ <deltab> and year, if necessary
       warn = False
-      if not phenny.reminders.has_key(tellee): 
-         phenny.reminders[tellee] = [(teller, verb, timenow, msg)]
+      if not jenny.reminders.has_key(tellee): 
+         jenny.reminders[tellee] = [(teller, verb, timenow, msg)]
       else: 
-         if len(phenny.reminders[tellee]) >= maximum: 
+         if len(jenny.reminders[tellee]) >= maximum: 
             warn = True
-         phenny.reminders[tellee].append((teller, verb, timenow, msg))
+         jenny.reminders[tellee].append((teller, verb, timenow, msg))
       # @@ Stephanie's augmentation
       response = "I'll pass that on when %s is around." % tellee_original
       if warn: response += (" I'll have to use a pastebin, though, so " + 
@@ -93,48 +93,48 @@ def f_remind(phenny, input):
       if rand > 0.9999: response = "yeah, yeah"
       elif rand > 0.999: response = "yeah, sure, whatever"
 
-      phenny.reply(response)
+      jenny.reply(response)
    elif teller.lower() == tellee: 
-      phenny.say('You can %s yourself that.' % verb)
-   else: phenny.say("Hey, I'm not as stupid as Monty you know!")
+      jenny.say('You can %s yourself that.' % verb)
+   else: jenny.say("Hey, I'm not as stupid as Monty you know!")
 
-   dumpReminders(phenny.tell_filename, phenny.reminders) # @@ tell
+   dumpReminders(jenny.tell_filename, jenny.reminders) # @@ tell
 f_remind.rule = ('$nick', ['tell', 'ask'], r'(\S+) (.*)')
 
-def getReminders(phenny, channel, key, tellee): 
+def getReminders(jenny, channel, key, tellee): 
    lines = []
    template = "%s: %s <%s> %s %s %s"
    today = time.strftime('%d %b', time.gmtime())
 
-   for (teller, verb, datetime, msg) in phenny.reminders[key]: 
+   for (teller, verb, datetime, msg) in jenny.reminders[key]: 
       if datetime.startswith(today): 
          datetime = datetime[len(today)+1:]
       lines.append(template % (tellee, datetime, teller, verb, tellee, msg))
 
-   try: del phenny.reminders[key]
-   except KeyError: phenny.msg(channel, 'Er...')
+   try: del jenny.reminders[key]
+   except KeyError: jenny.msg(channel, 'Er...')
    return lines
 
-def message(phenny, input): 
+def message(jenny, input): 
    if not input.sender.startswith('#'): return
 
    tellee = input.nick
    channel = input.sender
 
-   if not os.path.exists(phenny.tell_filename): 
+   if not os.path.exists(jenny.tell_filename): 
       return
 
    reminders = []
-   remkeys = list(reversed(sorted(phenny.reminders.keys())))
+   remkeys = list(reversed(sorted(jenny.reminders.keys())))
    for remkey in remkeys: 
       if not remkey.endswith('*') or remkey.endswith(':'): 
          if tellee.lower() == remkey: 
-            reminders.extend(getReminders(phenny, channel, remkey, tellee))
+            reminders.extend(getReminders(jenny, channel, remkey, tellee))
       elif tellee.lower().startswith(remkey.rstrip('*:')): 
-         reminders.extend(getReminders(phenny, channel, remkey, tellee))
+         reminders.extend(getReminders(jenny, channel, remkey, tellee))
 
    for line in reminders[:maximum]: 
-      phenny.say(line)
+      jenny.say(line)
 
    if reminders[maximum:]: 
       try: 
@@ -144,7 +144,7 @@ def message(phenny, input):
 
          result = web.post('http://paste.lisp.org/submit', 
             {'channel': chan, 
-             'username': phenny.nick, 
+             'username': jenny.nick, 
              'title': 'Further Messages for %s' % tellee, 
              'colorize': 'None', 
              'text': '\n'.join(reminders[maximum:]) + '\n', 
@@ -156,13 +156,13 @@ def message(phenny, input):
          uri = list(reversed(uris)).pop()
          if not origin.sender in lispchannels: 
             message = '%s: see %s for further messages' % (tellee, uri)
-            phenny.say(message)
+            jenny.say(message)
       except: 
          error = '[Sorry, some messages were elided and lost...]'
-         phenny.say(error)
+         jenny.say(error)
 
-   if len(phenny.reminders.keys()) != remkeys: 
-      dumpReminders(phenny.tell_filename, phenny.reminders) # @@ tell
+   if len(jenny.reminders.keys()) != remkeys: 
+      dumpReminders(jenny.tell_filename, jenny.reminders) # @@ tell
 message.rule = r'(.*)'
 message.priority = 'low'
 

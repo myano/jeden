@@ -4,7 +4,7 @@ wiktionary.py - Phenny Wiktionary Module
 Copyright 2009, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import re
@@ -71,11 +71,11 @@ def format(word, definitions, number=2):
          result += ', '.join(n)
    return result.strip(' .,')
 
-def w(phenny, input): 
+def w(jenny, input): 
    word = input.group(2)
    etymology, definitions = wiktionary(word)
    if not definitions: 
-      phenny.say("Couldn't get any definitions for %s." % word)
+      jenny.say("Couldn't get any definitions for %s." % word)
       return
 
    result = format(word, definitions)
@@ -86,7 +86,7 @@ def w(phenny, input):
 
    if len(result) > 300: 
       result = result[:295] + '[...]'
-   phenny.say(result)
+   jenny.say(result)
 w.commands = ['w']
 w.example = '.w bailiwick'
 

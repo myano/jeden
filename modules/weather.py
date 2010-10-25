@@ -4,7 +4,7 @@ weather.py - Phenny Weather Module
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import re, urllib
@@ -63,7 +63,7 @@ def local(icao, hour, minute):
       #         ':' + str(minute) + 'Z)')
    return str(hour) + ':' + str(minute) + 'Z'
 
-def code(phenny, search): 
+def code(jenny, search): 
    from icao import data
    
    if search.upper() in [loc[0] for loc in data]:

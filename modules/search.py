@@ -4,7 +4,7 @@ search.py - Phenny Web Search Module
 Copyright 2008-9, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import re
@@ -48,29 +48,29 @@ def formatnumber(n):
       parts.insert(i, ',')
    return ''.join(parts)
 
-def g(phenny, input): 
+def g(jenny, input): 
    """Queries Google for the specified input."""
    query = input.group(2)
    if not query: 
-      return phenny.reply('.g what?')
+      return jenny.reply('.g what?')
    uri = result(query)
    if uri: 
-      phenny.reply(uri)
-      if not hasattr(phenny.bot, 'last_seen_uri'):
-         phenny.bot.last_seen_uri = {}
-      phenny.bot.last_seen_uri[input.sender] = uri
-   else: phenny.reply("No results found for '%s'." % query)
+      jenny.reply(uri)
+      if not hasattr(jenny.bot, 'last_seen_uri'):
+         jenny.bot.last_seen_uri = {}
+      jenny.bot.last_seen_uri[input.sender] = uri
+   else: jenny.reply("No results found for '%s'." % query)
 g.commands = ['g']
 g.priority = 'high'
 g.example = '.g swhack'
 
-def gc(phenny, input): 
+def gc(jenny, input): 
    """Returns the number of Google results for the specified input."""
    query = input.group(2)
    if not query: 
-      return phenny.reply('.gc what?')
+      return jenny.reply('.gc what?')
    num = formatnumber(count(query))
-   phenny.say(query + ': ' + num)
+   jenny.say(query + ': ' + num)
 gc.commands = ['gc']
 gc.priority = 'high'
 gc.example = '.gc extrapolate'
@@ -79,10 +79,10 @@ r_query = re.compile(
    r'\+?"[^"\\]*(?:\\.[^"\\]*)*"|\[[^]\\]*(?:\\.[^]\\]*)*\]|\S+'
 )
 
-def gcs(phenny, input): 
+def gcs(jenny, input): 
    queries = r_query.findall(input.group(2))
    if len(queries) > 6: 
-      return phenny.reply('Sorry, can only compare up to six things.')
+      return jenny.reply('Sorry, can only compare up to six things.')
 
    results = []
    for i, query in enumerate(queries): 
@@ -94,7 +94,7 @@ def gcs(phenny, input):
 
    results = [(term, n) for (n, term) in reversed(sorted(results))]
    reply = ', '.join('%s (%s)' % (t, formatnumber(n)) for (t, n) in results)
-   phenny.say(reply)
+   jenny.say(reply)
 gcs.commands = ['gcs', 'comp']
 
 if __name__ == '__main__': 

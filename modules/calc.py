@@ -5,7 +5,7 @@ calc.py - Phenny Calculator Module
 Copyright 2008, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import re
@@ -27,11 +27,11 @@ subs = [
    ('mbps', '(megabits / second)')
 ]
 
-def calc(phenny, input): 
+def calc(jenny, input): 
    """Use the Frink online calculator."""
    q = input.group(2)
    if not q: 
-      return phenny.say('0?')
+      return jenny.say('0?')
 
    query = q[:]
    for a, b in subs: 
@@ -61,8 +61,8 @@ def calc(phenny, input):
       elif ' in ' in q: 
          result += ' ' + q.split(' in ', 1)[1]
 
-      phenny.say(q + ' = ' + result[:350])
-   else: phenny.reply("Sorry, can't calculate that.")
+      jenny.say(q + ' = ' + result[:350])
+   else: jenny.reply("Sorry, can't calculate that.")
 calc.commands = ['calc']
 calc.example = '.calc 5 + 3'
 

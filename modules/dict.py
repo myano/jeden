@@ -4,7 +4,7 @@ dict.py - Phenny Dictionary Module
 Copyright 2008-9, Sean B. Palmer, inamidst.com
 Licensed under the Eiffel Forum License 2.
 
-http://inamidst.com/phenny/
+http://inamidst.com/jenny/
 """
 
 import re, urllib
@@ -21,7 +21,7 @@ r_info = re.compile(
    r'(?:ResultBody"><br /><br />(.*?)&nbsp;)|(?:<b>(.*?)</b>)'
 )
 
-def dict(phenny, input): 
+def dict(jenny, input): 
    word = input.group(2)
    word = urllib.quote(word.encode('utf-8'))
 
@@ -47,8 +47,8 @@ def dict(phenny, input):
          result += '; '
    result = result.rstrip('; ')
    if result.endswith('-') and (len(result) < 30): 
-      phenny.reply('Sorry, no definition found.')
-   else: phenny.say(result)
+      jenny.reply('Sorry, no definition found.')
+   else: jenny.say(result)
 dict.commands = ['dict']
 
 if __name__ == '__main__': 
